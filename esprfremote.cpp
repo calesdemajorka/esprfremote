@@ -1,12 +1,14 @@
-
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 
 #include <RCSwitch.h>
 
-const char* ssid = "Android";
-const char* password = "78951230";
+#include <secrets.hpp>
+
+const char* hostname = "sockets";
 
 // Ethernet configuration
 ESP8266WebServer server(80);                           // Server Port 80
@@ -20,10 +22,14 @@ int RCTransmissionPin = 2;
 // httpResponseHome() functions to fit your needs.
 typedef struct sSwitch
 {
-    char* first_set;
-    char* second_set;
+    const char* first_set;
+    const char* second_set;
 } tSwitch;
 static const tSwitch switches[2] = { {"11111", "00110"}, {"11111", "00010"} };
+
+void httpResponseHome();
+void handleRf();
+void handleNotFound();
 
 /**
  * Setup
@@ -39,6 +45,11 @@ void setup()
     {
         delay(500);
         Serial.print(".");
+    }
+
+    if (MDNS.begin(hostname)) {
+      Serial.println("DNS gestartet, erreichbar unter: ");
+      Serial.println("http://" + String(hostname) + ".local/");
     }
 
     Serial.println("");
@@ -59,6 +70,7 @@ void setup()
 void loop()
 {
     server.handleClient();
+    MDNS.update();
 }
 
 void handleNotFound(){
@@ -106,28 +118,29 @@ void handleRf() {
  * HTTP Response with homepage
  */
 void httpResponseHome() {
-  String message = "<html>";
-  message += "<head>";
-  message +=     "<title>RCSwitch Webserver Demo</title>";
-  message +=     "<style>";
-  message +=         "body { font-family: Arial, sans-serif; font-size:12px; }";
-  message +=     "</style>";
-  message +=     "<meta name="viewport" content="width=device-width, initial-scale=1" />";
-  message += "</head>";
-  message += "<body>";
-  message +=     "<h1>RCSwitch Webserver Demo</h1>";
-  message +=     "<ul>";
-  message +=         "<li><a href=\"./rf?sw=1&act=on\">Renifer Switch on</a></li>";
-  message +=         "<li><a href=\"./rf?sw=1&act=off\">Renifer Switch off</a></li>";
-  message +=     "</ul>";
-  message +=     "<ul>";
-  message +=         "<li><a href=\"./rf?sw=2&act=on\">Girlanda Switch on</a></li>";
-  message +=         "<li><a href=\"./rf?sw=2&act=off\">Girlanda Switch off</a></li>";
-  message +=     "</ul>";
-  message +=     "<hr>";
-  message +=     "<a href=\"https://github.com/sui77/rc-switch/\">https://github.com/sui77/rc-switch/</a>";
-  message += "</body>";
-  message += "</html>";
+  String message = "<html>" \
+                    "<head>"
+                       "<title>RCSwitch Webserver Demo</title>" \
+                       "<style>" \
+                           "body { font-family: Arial, sans-serif; font-size:12px; }" \
+                       "</style>" \
+                       "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />" \
+                   "</head>" \
+                   "<body>" \
+                       "<h1>RCSwitch Webserver Demo</h1>" \
+                       "<ul>" \
+                           "<li><a href=\"./rf?sw=1&act=on\">Renifer Switch on</a></li>" \
+                           "<li><a href=\"./rf?sw=1&act=off\">Renifer Switch off</a></li>" \
+                       "</ul>" \
+                       "<ul>" \
+                           "<li><a href=\"./rf?sw=2&act=on\">Girlanda Switch on</a></li>" \
+                           "<li><a href=\"./rf?sw=2&act=off\">Girlanda Switch off</a></li>" \
+                       "</ul>" \
+                       "<hr>" \
+                       "<a href=\"https://github.com/sui77/rc-switch/\">https://github.com/sui77/rc-switch/</a>" \
+                   "</body>" \
+                   "</html>";
+
   server.send(200, "text/html", message);
 }
 

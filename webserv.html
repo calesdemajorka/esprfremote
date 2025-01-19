@@ -8,17 +8,16 @@
   </head>
   <body>
       <h1>Pilot RC do gniazdek</h1>
-      <form action="http://192.168.12.58/rf?sw=1&act=on">
+      <form action="http://192.168.50.60/rf?sw=1&act=on">
           <input type="submit" value="Renifer ON"/>
       </form>
-      <form action="http://192.168.12.58/rf?sw=1&act=off">
+      <form action="http://192.168.50.60/rf?sw=1&act=off">
           <input type="submit" value="Renifer OFF"/>
       </form>
-      <form action="http://192.168.12.58/rf?sw=2&act=on">
-          <input type="submit" value="Choinka u Adasia ON"/>
-      </form>
-      <form action="http://192.168.12.58/rf?sw=2&act=off">
-          <input type="submit" value="Choinka u Adasia OFF"/>
-      </form>
+
+          <button name="girlanda_on" onclick="window.location.href='http://192.168.50.60/post?switch=girlanda&act=off'">Girlanda ON</button>
+
+          <button name="girlanda_off" onclick="window.location.href='http://192.168.50.60/rf?switch=girlanda&act=off'">Girlanda OFF</button>
+
   </body>
   </html>
